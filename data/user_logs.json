@@ -1,0 +1,54 @@
+[
+    {
+        "timestamp": "2025-06-11 03:55:04",
+        "action": "notified",
+        "prayer": "Fajr",
+        "details": null
+    },
+    {
+        "timestamp": "2025-06-11 03:55:53",
+        "action": "snoozed",
+        "prayer": "Fajr",
+        "details": {
+            "snooze_until": "03:56"
+        }
+    },
+    {
+        "timestamp": "2025-06-11 03:57:04",
+        "action": "snooze_fired",
+        "prayer": "Fajr",
+        "details": null
+    },
+    {
+        "timestamp": "2025-06-11 03:57:42",
+        "action": "offered",
+        "prayer": "Fajr",
+        "details": null
+    },
+    {
+        "timestamp": "2025-06-11 04:02:03",
+        "action": "notified",
+        "prayer": "Fajr",
+        "details": null
+    },
+    {
+        "timestamp": "2025-06-11 04:02:19",
+        "action": "snoozed",
+        "prayer": "Fajr",
+        "details": {
+            "snooze_until": "04:03"
+        }
+    },
+    {
+        "timestamp": "2025-06-11 04:03:33",
+        "action": "snooze_fired",
+        "prayer": "Fajr",
+        "details": null
+    },
+    {
+        "timestamp": "2025-06-11 04:03:40",
+        "action": "offered",
+        "prayer": "Fajr",
+        "details": null
+    }
+]
