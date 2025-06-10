@@ -67,10 +67,12 @@ class NamazReminderApp:
             time_label.grid(row=i, column=1, sticky="e", padx=15, pady=8)
             self.prayer_labels[name] = (name_label, time_label)
 
-        times_grid.columnconfigure(0, weight=1)  # <-- WRONG
+        times_grid.columnconfigure(0, weight=1)
         times_grid.columnconfigure(1, weight=1)  # <-- CORRECT
 
         set_times_button = ctk.CTkButton(frame, text="Set Prayer Times", command=lambda: self.show_frame("settings"))
+
+        #hello its me test
         
         set_times_button.pack(pady=20, padx=40, fill="x")
 
