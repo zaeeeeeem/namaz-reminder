@@ -70,7 +70,7 @@ class NamazReminderApp:
         times_grid.columnconfigure(0, weight=1)  # <-- CORRECT
         times_grid.columnconfigure(1, weight=1)  # <-- CORRECT
 
-        set_times_button = ctk.CTkButton(frame, text="Set Prayer Times", command=lambda: self.show_frame("settings"))
+        set_times_button = ctk.CTkButton(frame, text="Setting", command=lambda: self.show_frame("settings"))
         set_times_button.pack(pady=20, padx=40, fill="x")
 
         self.frames["dashboard"] = frame
