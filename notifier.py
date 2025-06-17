@@ -8,9 +8,6 @@ import os
 from config import AZAN_SOUND_FILE
 from utils import logging
 
-
-# --- Sound Handling ---
-
 def play_azan_sound():
     """Plays the Azan sound in a separate thread to avoid blocking the UI."""
     if not os.path.exists(AZAN_SOUND_FILE):
@@ -35,19 +32,7 @@ def stop_azan_sound():
     except Exception as e:
         logging.error(f"Failed to stop sound: {e}")
 
-
-# --- Notification Popup ---
-
 def show_notification_popup(prayer_name, offered_callback, snooze_callback):
-    """
-    Creates a custom CTkToplevel window to act as an interactive notification.
-
-    Args:
-        prayer_name (str): The name of the prayer.
-        offered_callback (function): The function to call when 'Offered' is clicked.
-        snooze_callback (function): The function to call when 'Not Yet' is clicked.
-    """
-    # Start playing the sound in the background
     threading.Thread(target=play_azan_sound, daemon=True).start()
 
     popup = ctk.CTkToplevel()
@@ -55,7 +40,6 @@ def show_notification_popup(prayer_name, offered_callback, snooze_callback):
     popup.geometry("350x180")
     popup.resizable(False, False)
 
-    # Make the window stay on top of all others
     popup.attributes("-topmost", True)
 
     def on_offered():
@@ -70,7 +54,6 @@ def show_notification_popup(prayer_name, offered_callback, snooze_callback):
             snooze_callback()
         popup.destroy()
 
-    # Ensure sound stops if the window is closed manually
     popup.protocol("WM_DELETE_WINDOW", on_snooze)  # Treat closing as a snooze
 
     main_label = ctk.CTkLabel(popup, text=f"It's time for {prayer_name} prayer!", font=ctk.CTkFont(size=18))
@@ -85,7 +68,6 @@ def show_notification_popup(prayer_name, offered_callback, snooze_callback):
     snooze_button = ctk.CTkButton(button_frame, text="Not Yet (Snooze)", command=on_snooze, height=40)
     snooze_button.pack(side="right", expand=True, padx=(5, 0))
 
-    # Center the popup on the screen
     popup.update_idletasks()
     screen_width = popup.winfo_screenwidth()
     screen_height = popup.winfo_screenheight()
@@ -93,4 +75,4 @@ def show_notification_popup(prayer_name, offered_callback, snooze_callback):
     y = (screen_height / 2) - (popup.winfo_height() / 2)
     popup.geometry(f"+{int(x)}+{int(y)}")
 
-    popup.focus_force()  # Grab user's attention
+    popup.focus_force()

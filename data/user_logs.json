@@ -50,5 +50,31 @@
         "action": "offered",
         "prayer": "Fajr",
         "details": null
+    },
+    {
+        "timestamp": "2025-06-18 03:10:10",
+        "action": "notified",
+        "prayer": "Dhuhr",
+        "details": null
+    },
+    {
+        "timestamp": "2025-06-18 03:10:17",
+        "action": "snoozed",
+        "prayer": "Dhuhr",
+        "details": {
+            "snooze_until": "03:11"
+        }
+    },
+    {
+        "timestamp": "2025-06-18 03:11:40",
+        "action": "snooze_fired",
+        "prayer": "Dhuhr",
+        "details": null
+    },
+    {
+        "timestamp": "2025-06-18 03:11:45",
+        "action": "offered",
+        "prayer": "Dhuhr",
+        "details": null
     }
 ]
