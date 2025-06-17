@@ -180,45 +180,38 @@ class NamazReminderApp:
         title = ctk.CTkLabel(frame, text="Islamic Assistant", font=ctk.CTkFont(size=24, weight="bold"))
         title.pack(pady=20)
 
-        # Text box for displaying the conversation
         self.chat_history = ctk.CTkTextbox(frame, state="disabled", font=ctk.CTkFont(size=14), wrap="word")
         self.chat_history.pack(pady=10, padx=20, fill="both", expand=True)
 
-        # Frame for user input and the send button
         input_frame = ctk.CTkFrame(frame, fg_color="transparent")
         input_frame.pack(pady=10, padx=20, fill="x")
 
         self.chat_entry = ctk.CTkEntry(input_frame, font=ctk.CTkFont(size=14), placeholder_text="Ask a question...")
         self.chat_entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
-        # Allow pressing Enter to send
+
         self.chat_entry.bind("<Return>", self.send_message_event)
 
         self.send_button = ctk.CTkButton(input_frame, text="Send", width=80, command=self.send_message)
         self.send_button.pack(side="right")
 
-        # --- Back Button ---
         back_button = ctk.CTkButton(frame, text="Back to Dashboard", fg_color="#555", hover_color="#444",
                                     command=lambda: self.show_frame("dashboard"))
         back_button.pack(pady=10, padx=20)
 
         self.frames["chatbot"] = frame
 
-        # Add a helpful starting message
         self.add_message_to_chat("Assalamu Alaikum! How can I help you today?", "AI")
 
     def add_message_to_chat(self, message: str, sender: str):
-        """Helper function to add a message to the chat history box."""
-        self.chat_history.configure(state="normal")  # Enable writing
+        self.chat_history.configure(state="normal")
         self.chat_history.insert("end", f"{sender}: {message}\n\n")
-        self.chat_history.configure(state="disabled")  # Disable writing
-        self.chat_history.see("end")  # Scroll to the bottom
+        self.chat_history.configure(state="disabled")
+        self.chat_history.see("end")
 
     def send_message_event(self, event):
-        """Handles the <Return> key event."""
         self.send_message()
 
     def send_message(self):
-        """Handles sending the user's message to the AI."""
         user_input = self.chat_entry.get().strip()
         if not user_input:
             return
@@ -226,24 +219,18 @@ class NamazReminderApp:
         self.add_message_to_chat(user_input, "You")
         self.chat_entry.delete(0, "end")
 
-        # Disable input while waiting for AI response
         self.send_button.configure(state="disabled", text="Typing...")
         self.chat_entry.configure(state="disabled")
 
-        # Run the API call in a background thread to avoid freezing the GUI
         threading.Thread(target=self.get_ai_response_threaded, args=(user_input,), daemon=True).start()
 
     def get_ai_response_threaded(self, user_input):
-        """The function that runs in the background thread."""
         response_text = gemini_client.get_ai_response(user_input)
 
-        # Schedule the UI update to run on the main thread
         self.app.after(0, self.update_ui_with_response, response_text)
 
     def update_ui_with_response(self, response_text):
-        """This function is called safely on the main thread to update the UI."""
         self.add_message_to_chat(response_text, "AI")
 
-        # Re-enable the input field and send button
         self.send_button.configure(state="normal", text="Send")
         self.chat_entry.configure(state="normal")

@@ -5,22 +5,16 @@ import logging
 
 # --- Setup ---
 
-# Load the API key from the .env file
 load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
 
-# A check to ensure the key is loaded
 if not API_KEY:
     logging.critical("GEMINI_API_KEY not found in .env file. Please add it.")
-    # You might want to handle this more gracefully, maybe disable the AI feature
     genai = None
 else:
     genai.configure(api_key=API_KEY)
 
-# --- AI Model Configuration ---
 
-# This is where you give the AI its personality and instructions.
-# This is the MOST IMPORTANT part for tailoring its use case.
 SYSTEM_INSTRUCTION = """You are a helpful and knowledgeable Islamic assistant. 
 Your purpose is to provide accurate and respectful answers based on the Quran and Sunnah.
 - Always be polite and encouraging.
@@ -31,20 +25,12 @@ Your purpose is to provide accurate and respectful answers based on the Quran an
 - Keep answers concise and easy to understand.
 """
 
-# Select the model you want to use
 model = genai.GenerativeModel(
-    model_name='gemini-1.5-flash',  # A fast and capable model
+    model_name='gemini-1.5-flash',
     system_instruction=SYSTEM_INSTRUCTION
 )
 
-
-# --- Main Function ---
-
 def get_ai_response(user_prompt: str) -> str:
-    """
-    Sends a prompt to the Gemini API and returns the response.
-    Includes basic error handling.
-    """
     if not genai:
         return "The AI assistant is not configured. Please check the API key."
 
