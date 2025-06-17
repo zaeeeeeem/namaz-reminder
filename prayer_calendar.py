@@ -1,5 +1,3 @@
-# prayer_calendar.py
-
 import customtkinter as ctk
 import os
 import json
@@ -41,7 +39,7 @@ def open_calendar_view(root_frame, get_today_times_callback, switch_to_dashboard
     all_status = load_status_data()
     today_times = get_today_times_callback()
 
-    var_refs = {}  # {(date, prayer): StringVar}
+    var_refs = {}
 
     for i in range(7):
         date = today + timedelta(days=i)
