@@ -81,3 +81,6 @@ class ReminderScheduler(threading.Thread):
     def stop(self):
         """Signals the thread to stop running."""
         self._stop_event.set()
+
+    def get_today_times(self):
+        return self.reminders_today.copy()
