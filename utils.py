@@ -97,9 +97,6 @@ def get_next_prayer_info(current_times):
 
 
 def get_day_name(date_str):
-    """
-    Given a date string in format YYYY-MM-DD, return the day name like 'Monday'
-    """
     try:
         dt = datetime.strptime(date_str, "%Y-%m-%d")
         return dt.strftime("%A")

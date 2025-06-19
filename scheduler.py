@@ -25,7 +25,6 @@ class ReminderScheduler(threading.Thread):
         logging.info(f"Scheduler reloaded times for {self.last_checked_date}: {self.reminders_today}")
 
     def run(self):
-        """The main loop for the scheduler thread."""
         logging.info("Reminder scheduler thread started.")
         while not self._stop_event.is_set():
             now = datetime.now()
@@ -39,10 +38,8 @@ class ReminderScheduler(threading.Thread):
             for prayer_name, time_str in list(self.reminders_today.items()):
                 if time_str == current_time_str:
                     logging.info(f"Time for {prayer_name}. Sending notification request.")
-                    # Put a request in the queue for the GUI to handle
                     self.notification_queue.put(('show_notification', prayer_name))
                     log_user_action("notified", prayer_name)
-                    # Remove from today's list to prevent re-triggering
                     del self.reminders_today[prayer_name]
 
             for prayer_name, snooze_until_dt in list(self.snoozed_reminders.items()):
@@ -62,11 +59,9 @@ class ReminderScheduler(threading.Thread):
         self.snoozed_reminders[prayer_name] = snooze_time
         logging.info(f"{prayer_name} has been snoozed until {snooze_time.strftime('%H:%M:%S')}")
         log_user_action("snoozed", prayer_name, {"snooze_until": snooze_time.strftime('%H:%M')})
-        # Notify the GUI to update its status
         self.notification_queue.put(('update_status', None))
 
     def acknowledge_prayer(self, prayer_name):
-        """Logs that a prayer was offered. Called from the main thread."""
         logging.info(f"{prayer_name} was acknowledged as 'Offered'.")
         log_user_action("offered", prayer_name)
         self.notification_queue.put(('update_status', None))

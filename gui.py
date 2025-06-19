@@ -8,9 +8,9 @@ from datetime import datetime
 from utils import load_prayer_times, save_prayer_times, get_next_prayer_info, logging
 from config import PRAYER_NAMES
 from notifier import show_notification_popup
-from prayer_calendar import open_calendar_view  # <-- Updated
-import gemini_client # <-- Add this
-from config import PRAYER_NAMES, START_MINIMIZED # <-- MODIFIED
+from prayer_calendar import open_calendar_view
+import gemini_client
+from config import PRAYER_NAMES, START_MINIMIZED
 
 class NamazReminderApp:
     def __init__(self, scheduler):

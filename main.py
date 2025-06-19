@@ -9,7 +9,6 @@ from scheduler import ReminderScheduler
 from utils import logging
 from config import ASSETS_DIR
 
-# --- Global variables that MUST be updated by main() ---
 app_instance = None
 scheduler_instance = None
 icon_instance = None
@@ -19,15 +18,12 @@ def main():
 
     logging.info("Starting Namaz Reminder App...")
 
-    # 1. Initialize background services
     notification_queue = queue.Queue()
     scheduler_instance = ReminderScheduler(notification_queue)
     scheduler_instance.start()
 
-    # 2. Define the actions for the tray icon
     def show_window_action(icon, item):
         logging.info("show_window_action called.")
-        # This function will now find the correct global app_instance
         try:
             if app_instance:
                 app_instance.schedule_show_window()
