@@ -73,3 +73,6 @@ class ReminderScheduler(threading.Thread):
 
     def stop(self):
         self._stop_event.set()
+
+    def get_today_times(self):
+        return self.reminders_today.copy()

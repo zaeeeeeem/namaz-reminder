@@ -52,23 +52,9 @@
         "details": null
     },
     {
-        "timestamp": "2025-06-18 03:10:10",
+        "timestamp": "2025-06-18 03:17:19",
         "action": "notified",
-        "prayer": "Dhuhr",
-        "details": null
-    },
-    {
-        "timestamp": "2025-06-18 03:10:17",
-        "action": "snoozed",
-        "prayer": "Dhuhr",
-        "details": {
-            "snooze_until": "03:11"
-        }
-    },
-    {
-        "timestamp": "2025-06-18 03:11:40",
-        "action": "snooze_fired",
-        "prayer": "Dhuhr",
+        "prayer": "Fajr",
         "details": null
     },
     {
