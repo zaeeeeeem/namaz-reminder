@@ -9,25 +9,47 @@ from scheduler import ReminderScheduler
 from utils import logging
 from config import ASSETS_DIR
 
-# --- Global variables that MUST be updated by main() ---
+# --- Global instances updated by main() ---
 app_instance = None
 scheduler_instance = None
 icon_instance = None
 
+def initialize_scheduler():
+    """Initialize and start the background reminder scheduler."""
+    notification_queue = queue.Queue()
+    scheduler = ReminderScheduler(notification_queue)
+    scheduler.start()
+    return scheduler
+
+def create_tray_icon(on_show, on_quit):
+    """Create and run the system tray icon with menu actions."""
+    try:
+        icon_image = Image.open(f"{ASSETS_DIR}/icon.png")
+    except FileNotFoundError:
+        logging.error("icon.png not found in assets folder!")
+        icon_image = None
+
+    menu = pystray.Menu(
+        pystray.MenuItem("Show", on_show, default=True),
+        pystray.MenuItem("Quit", on_quit)
+    )
+    icon = pystray.Icon("NamazReminder", icon_image, "Namaz Reminder", menu)
+    threading.Thread(target=icon.run, daemon=True).start()
+    logging.info("System tray icon thread started.")
+    return icon
+
 def main():
+    """Main entry point for the Namaz Reminder application."""
     global app_instance, scheduler_instance, icon_instance
 
     logging.info("Starting Namaz Reminder App...")
 
-    # 1. Initialize background services
-    notification_queue = queue.Queue()
-    scheduler_instance = ReminderScheduler(notification_queue)
-    scheduler_instance.start()
+    # Initialize the reminder scheduler
+    scheduler_instance = initialize_scheduler()
 
-    # 2. Define the actions for the tray icon
+    # Define system tray menu actions
     def show_window_action(icon, item):
         logging.info("show_window_action called.")
-        # This function will now find the correct global app_instance
         try:
             if app_instance:
                 app_instance.schedule_show_window()
@@ -46,24 +68,13 @@ def main():
             app_instance.app.quit()
         sys.exit(0)
 
-    try:
-        icon_image = Image.open(f"{ASSETS_DIR}/icon.png")
-    except FileNotFoundError:
-        logging.error("icon.png not found in assets folder!")
-        icon_image = None
+    # Initialize system tray icon
+    icon_instance = create_tray_icon(show_window_action, quit_app_action)
 
-    menu = pystray.Menu(
-        pystray.MenuItem("Show", show_window_action, default=True),
-        pystray.MenuItem("Quit", quit_app_action)
-    )
-    icon_instance = pystray.Icon("NamazReminder", icon_image, "Namaz Reminder", menu)
-    threading.Thread(target=icon_instance.run, daemon=True).start()
-    logging.info("System tray icon thread started.")
-
+    # Start the main app GUI
     app_instance = NamazReminderApp(scheduler_instance)
 
     logging.info("Application has been closed.")
-
 
 if __name__ == "__main__":
     main()

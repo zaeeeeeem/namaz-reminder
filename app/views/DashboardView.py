@@ -4,13 +4,17 @@ from app.utils.config import PRAYER_NAMES
 
 
 class DashboardView(ctk.CTkFrame):
+    """Dashboard frame displaying current time, countdown, and prayer times."""
+
     def __init__(self, master, prayer_times, **kwargs):
+        """Initialize the dashboard with labels and layout."""
         super().__init__(master, **kwargs)
         self.prayer_times = prayer_times
         self.prayer_labels = {}
         self.create_widgets()
 
     def create_widgets(self):
+        """Create and layout all widgets in the dashboard frame."""
         title = ctk.CTkLabel(self, text="Namaz Reminder", font=ctk.CTkFont(size=28, weight="bold"))
         title.pack(pady=(20, 10))
 
@@ -37,13 +41,12 @@ class DashboardView(ctk.CTkFrame):
         times_grid.columnconfigure(1, weight=1)
 
     def update_display(self, next_prayer=None):
+        """Update clock and highlight the next prayer time."""
         self.clock_label.configure(text=datetime.now().strftime("%H:%M:%S"))
 
         for name, (name_label, time_label) in self.prayer_labels.items():
             time_label.configure(text=self.prayer_times.get(name, "00:00"))
-            if name == next_prayer:
-                name_label.configure(text_color="cyan")
-                time_label.configure(text_color="cyan")
-            else:
-                name_label.configure(text_color="white")
-                time_label.configure(text_color="white")
+            is_next = name == next_prayer
+            color = "cyan" if is_next else "white"
+            name_label.configure(text_color=color)
+            time_label.configure(text_color=color)

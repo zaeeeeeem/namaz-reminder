@@ -1,5 +1,3 @@
-# config.py
-
 PRAYER_NAMES = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"]
 
 USER_TIMES_FILE = "../models/user_times.json"
