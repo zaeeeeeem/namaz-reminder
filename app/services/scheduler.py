@@ -4,8 +4,8 @@ import threading
 import time
 from datetime import datetime, timedelta
 
-from utils import load_prayer_times, log_user_action, logging
-from config import DEFAULT_SNOOZE_MINUTES, SCHEDULER_CHECK_INTERVAL_SECONDS
+from app.utils.utils import load_prayer_times, log_user_action, logging
+from app.utils.config import DEFAULT_SNOOZE_MINUTES, SCHEDULER_CHECK_INTERVAL_SECONDS
 
 
 class ReminderScheduler(threading.Thread):
