@@ -37,3 +37,11 @@ APP_ICON_PNG = ASSETS_DIR / "icon.png"
 # --- Scheduler Settings ---
 DEFAULT_SNOOZE_MINUTES = 1
 SCHEDULER_CHECK_INTERVAL_SECONDS = 30
+
+# --- Calendar View Settings ---
+STATUS_OPTIONS = ["Completed", "Late", "Not Completed"]
+STATUS_COLORS = {
+    "Completed": "#228B22",  # ForestGreen
+    "Late": "#FFA500",      # Orange
+    "Not Completed": "#808080" # Gray
+}

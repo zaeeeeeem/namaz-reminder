@@ -143,3 +143,16 @@ def get_next_prayer_info(current_times):
         return first_prayer_name, str(timedelta(seconds=int(time_diff.total_seconds())))
 
     return "N/A", "N/A"
+
+def get_day_name(date_obj: datetime.date) -> str:
+    """
+    Converts a datetime.date object into the full name of the weekday.
+
+    Args:
+        date_obj (datetime.date): The date object to be converted.
+
+    Returns:
+        str: The full name of the weekday (e.g., "Friday").
+    """
+    # .strftime("%A") is the format code for the full weekday name
+    return date_obj.strftime("%A")

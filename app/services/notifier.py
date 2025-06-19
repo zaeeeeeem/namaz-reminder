@@ -1,131 +1,141 @@
+# app/services/notifier.py
+
+"""
+This module handles all user-facing notifications, including the
+display of the prayer time popup and the playback of the Azan sound.
+"""
+
 import customtkinter as ctk
 import pygame
 import threading
 import os
-from app.utils.config import AZAN_SOUND_FILE
-from app.utils.utils import logging
+
+from app.utils import config
+from app.utils import utils
 
 
-# --------------------------
-# Sound Management Functions
-# --------------------------
+# --- Sound Management Functions ---
 
 def play_azan_sound():
     """
-    Play the Azan sound in a background thread.
-    Handles file existence and playback exceptions gracefully.
+    Initializes pygame mixer and plays the Azan sound in a background thread.
+    This function handles errors gracefully if the sound file is missing or corrupt.
     """
-    if not os.path.exists(AZAN_SOUND_FILE):
-        logging.warning(f"Audio file not found at: {AZAN_SOUND_FILE}")
+    if not os.path.exists(config.AZAN_SOUND_FILE):
+        utils.logging.warning(f"Audio file not found at: {config.AZAN_SOUND_FILE}")
         return
 
     try:
-        pygame.mixer.init()
-        pygame.mixer.music.load(AZAN_SOUND_FILE)
+        # Initialize the mixer if it's not already
+        if not pygame.mixer.get_init():
+            pygame.mixer.init()
+
+        pygame.mixer.music.load(config.AZAN_SOUND_FILE)
         pygame.mixer.music.play()
-        logging.info("Azan sound started playing.")
+        utils.logging.info("Azan sound started playing.")
     except Exception as e:
-        logging.error(f"Failed to play Azan sound: {e}")
+        utils.logging.error(f"Failed to play Azan sound: {e}")
 
 
 def stop_azan_sound():
     """
-    Stop the currently playing Azan sound if mixer is initialized.
+    Stops any currently playing sound via the pygame mixer.
     """
     try:
+        # Check if the mixer is initialized and if music is playing
         if pygame.mixer.get_init() and pygame.mixer.music.get_busy():
             pygame.mixer.music.stop()
-            logging.info("Azan sound stopped.")
+            utils.logging.info("Azan sound stopped.")
     except Exception as e:
-        logging.error(f"Failed to stop Azan sound: {e}")
+        utils.logging.error(f"Failed to stop Azan sound: {e}")
 
 
-# --------------------------
-# Notification Popup Window
-# --------------------------
+# --- Notification Popup Window ---
 
 def show_notification_popup(prayer_name, offered_callback, snooze_callback):
     """
-    Show a popup notification for the specified prayer.
+    The main function to create and display a popup notification for a specific prayer.
 
     Args:
-        prayer_name (str): Name of the prayer (e.g., 'Fajr', 'Isha')
-        offered_callback (callable): Called when 'Offered' is clicked
-        snooze_callback (callable): Called when 'Snooze' is clicked
+        prayer_name (str): The name of the prayer (e.g., 'Fajr', 'Isha').
+        offered_callback (callable): The function to call when 'Offered' is clicked.
+        snooze_callback (callable): The function to call when 'Snooze' is clicked or the window is closed.
     """
-    # Start background thread for Azan sound
+    # Start the Azan sound in a separate thread to not block the UI
     threading.Thread(target=play_azan_sound, daemon=True).start()
 
-    # Create a popup window
+    # Create the top-level window for the popup
     popup = ctk.CTkToplevel()
     popup.title(f"{prayer_name} Reminder")
     popup.geometry("350x180")
     popup.resizable(False, False)
-    popup.attributes("-topmost", True)
+    popup.attributes("-topmost", True)  # Keep the popup on top of all other windows
 
-    # ----------------------
-    # Button Handlers
-    # ----------------------
-
+    # --- Event Handlers ---
+    # These functions are defined here to have access to the popup and callback variables.
     def on_offered():
-        """Handler for when 'Offered' is clicked."""
+        """Handles the 'Offered' button click event."""
         stop_azan_sound()
         if offered_callback:
             offered_callback()
         popup.destroy()
 
     def on_snooze():
-        """Handler for when 'Snooze' is clicked or window is closed."""
+        """Handles the 'Snooze' button click and the window close event."""
         stop_azan_sound()
         if snooze_callback:
             snooze_callback()
         popup.destroy()
 
+    # Assign the handler to the window's close ('X') button
     popup.protocol("WM_DELETE_WINDOW", on_snooze)
 
-    # ----------------------
-    # UI Elements
-    # ----------------------
+    # --- UI Construction ---
+    _create_popup_widgets(popup, prayer_name, on_offered, on_snooze)
+    _center_popup_window(popup)
+    popup.focus_force()  # Grab the user's attention
 
-    # Main message
-    main_label = ctk.CTkLabel(
-        popup,
-        text=f"It's time for {prayer_name} prayer!",
-        font=ctk.CTkFont(size=18)
-    )
+
+def _create_popup_widgets(parent, prayer_name, offered_command, snooze_command):
+    """
+    Creates and packs all the widgets (labels, buttons) inside the popup window.
+
+    Args:
+        parent (ctk.CTkToplevel): The popup window to place widgets in.
+        prayer_name (str): The name of the prayer to display.
+        offered_command (callable): The command for the 'Offered' button.
+        snooze_command (callable): The command for the 'Snooze' button.
+    """
+    main_label = ctk.CTkLabel(parent, text=f"It's time for {prayer_name} prayer!", font=ctk.CTkFont(size=18))
     main_label.pack(pady=20, padx=20)
 
-    # Button layout
-    button_frame = ctk.CTkFrame(popup, fg_color="transparent")
+    button_frame = ctk.CTkFrame(parent, fg_color="transparent")
     button_frame.pack(pady=20, padx=20, fill="x")
 
-    # Offered Button
-    offered_button = ctk.CTkButton(
-        button_frame,
-        text="Offered",
-        command=on_offered,
-        height=40
-    )
+    offered_button = ctk.CTkButton(button_frame, text="Offered", command=offered_command, height=40)
     offered_button.pack(side="left", expand=True, padx=(0, 5))
 
-    # Snooze Button
-    snooze_button = ctk.CTkButton(
-        button_frame,
-        text="Not Yet (Snooze)",
-        command=on_snooze,
-        height=40
-    )
+    snooze_button = ctk.CTkButton(button_frame, text="Not Yet (Snooze)", command=snooze_command, height=40)
     snooze_button.pack(side="right", expand=True, padx=(5, 0))
 
-    # ----------------------
-    # Window Positioning
-    # ----------------------
 
+def _center_popup_window(popup):
+    """
+    Calculates the correct coordinates to center the popup on the screen.
+
+    Args:
+        popup (ctk.CTkToplevel): The window to be centered.
+    """
+    # Ensure window size is calculated before positioning
     popup.update_idletasks()
+
     screen_width = popup.winfo_screenwidth()
     screen_height = popup.winfo_screenheight()
-    x = (screen_width / 2) - (popup.winfo_width() / 2)
-    y = (screen_height / 2) - (popup.winfo_height() / 2)
-    popup.geometry(f"+{int(x)}+{int(y)}")
 
-    popup.focus_force()
+    popup_width = popup.winfo_width()
+    popup_height = popup.winfo_height()
+
+    x = (screen_width / 2) - (popup_width / 2)
+    y = (screen_height / 2) - (popup_height / 2)
+
+    popup.geometry(f"+{int(x)}+{int(y)}")

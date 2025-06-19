@@ -4,11 +4,11 @@
   "2025-06-19_Asr": "Late",
   "2025-06-19_Maghrib": "Late",
   "2025-06-19_Isha": "Completed",
-  "2025-06-20_Fajr": "Not Completed",
+  "2025-06-20_Fajr": "Late",
   "2025-06-20_Dhuhr": "Not Completed",
   "2025-06-20_Asr": "Not Completed",
   "2025-06-20_Maghrib": "Not Completed",
-  "2025-06-20_Isha": "Not Completed",
+  "2025-06-20_Isha": "Completed",
   "2025-06-21_Fajr": "Not Completed",
   "2025-06-21_Dhuhr": "Not Completed",
   "2025-06-21_Asr": "Not Completed",
@@ -33,5 +33,10 @@
   "2025-06-25_Dhuhr": "Not Completed",
   "2025-06-25_Asr": "Not Completed",
   "2025-06-25_Maghrib": "Not Completed",
-  "2025-06-25_Isha": "Not Completed"
+  "2025-06-25_Isha": "Not Completed",
+  "2025-06-26_Fajr": "Not Completed",
+  "2025-06-26_Dhuhr": "Not Completed",
+  "2025-06-26_Asr": "Not Completed",
+  "2025-06-26_Maghrib": "Not Completed",
+  "2025-06-26_Isha": "Not Completed"
 }
