@@ -10,16 +10,15 @@ from config import DEFAULT_SNOOZE_MINUTES, SCHEDULER_CHECK_INTERVAL_SECONDS
 
 class ReminderScheduler(threading.Thread):
     def __init__(self, notification_queue):
-        super().__init__(daemon=True)  # daemon=True ensures thread exits when main app closes
+        super().__init__(daemon=True)
         self.notification_queue = notification_queue
         self._stop_event = threading.Event()
         self.reminders_today = {}
         self.snoozed_reminders = {}
         self.last_checked_date = None
-        self.reload_times()  # Initial load
+        self.reload_times()
 
     def reload_times(self):
-        """Loads/reloads prayer times and resets the daily schedule."""
         all_times = load_prayer_times()
         self.reminders_today = {name: time_str for name, time_str in all_times.items() if time_str}
         self.last_checked_date = datetime.now().date()
@@ -31,15 +30,12 @@ class ReminderScheduler(threading.Thread):
         while not self._stop_event.is_set():
             now = datetime.now()
 
-            # If the day has changed, reload the prayer times for the new day
             if now.date() > self.last_checked_date:
                 logging.info("Midnight passed. Resetting reminders for the new day.")
                 self.reload_times()
 
             current_time_str = now.strftime('%H:%M')
 
-            # --- Check for main prayer times ---
-            # Iterate over a copy of the items to allow safe modification
             for prayer_name, time_str in list(self.reminders_today.items()):
                 if time_str == current_time_str:
                     logging.info(f"Time for {prayer_name}. Sending notification request.")
@@ -49,7 +45,6 @@ class ReminderScheduler(threading.Thread):
                     # Remove from today's list to prevent re-triggering
                     del self.reminders_today[prayer_name]
 
-            # --- Check for snoozed reminders ---
             for prayer_name, snooze_until_dt in list(self.snoozed_reminders.items()):
                 if now >= snooze_until_dt:
                     logging.info(f"Snooze time for {prayer_name} is over. Sending notification.")
@@ -57,7 +52,6 @@ class ReminderScheduler(threading.Thread):
                     log_user_action("snooze_fired", prayer_name)
                     del self.snoozed_reminders[prayer_name]
 
-            # Wait for the configured interval before checking again
             time.sleep(SCHEDULER_CHECK_INTERVAL_SECONDS)
 
         logging.info("Scheduler thread has stopped.")
@@ -75,11 +69,9 @@ class ReminderScheduler(threading.Thread):
         """Logs that a prayer was offered. Called from the main thread."""
         logging.info(f"{prayer_name} was acknowledged as 'Offered'.")
         log_user_action("offered", prayer_name)
-        # Notify the GUI to update its status
         self.notification_queue.put(('update_status', None))
 
     def stop(self):
-        """Signals the thread to stop running."""
         self._stop_event.set()
 
     def get_today_times(self):
