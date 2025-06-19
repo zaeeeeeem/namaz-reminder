@@ -2,12 +2,12 @@
 
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import timedelta
 import logging
 from datetime import datetime
 
 
-from config import USER_TIMES_FILE, USER_LOG_FILE, PRAYER_NAMES
+from app.utils.config import USER_TIMES_FILE, USER_LOG_FILE, PRAYER_NAMES
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
