@@ -7,7 +7,7 @@ from utils import logging
 
 
 def main():
-    logging.info("Starting Namaz Reminder App...")
+    logging.info("Starting Namaz Reminder App....")
 
     notification_queue = queue.Queue()
 
