@@ -62,16 +62,16 @@ class NamazReminderApp:
         times_grid.columnconfigure(0, weight=1)
         times_grid.columnconfigure(1, weight=1)
 
-        calendar_button = ctk.CTkButton(frame, text="Prayer Calendar", command=self.open_calendar_page)
-        calendar_button.pack(pady=(20, 10), padx=40, fill="x")
-
-
 
         set_times_button = ctk.CTkButton(frame, text="Set Prayer Times",
                                          command=lambda: self.show_frame("settings"))
         set_times_button.pack(pady=10, padx=40, fill="x")
+
+        calendar_button = ctk.CTkButton(frame, text="Prayer Calendar", command=self.open_calendar_page)
+        calendar_button.pack(pady=10, padx=40, fill="x")
+
         ai_chat_button = ctk.CTkButton(frame, text="Ask Islamic Assistant", command=lambda: self.show_frame("chatbot"))
-        ai_chat_button.pack(pady=(5, 20), padx=40, fill="x")
+        ai_chat_button.pack(pady=10, padx=40, fill="x")
 
         self.frames["dashboard"] = frame
 
