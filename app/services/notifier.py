@@ -2,8 +2,8 @@ import customtkinter as ctk
 import pygame
 import threading
 import os
-from config import AZAN_SOUND_FILE
-from utils import logging
+from app.utils.config import AZAN_SOUND_FILE
+from app.utils.utils import logging
 
 
 # --------------------------

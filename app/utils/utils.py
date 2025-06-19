@@ -1,110 +1,119 @@
+# app/utils/utils.py
+
+"""
+This module provides utility functions for the application, including
+file I/O for prayer times and logs, time calculations, and logging setup.
+"""
+
 import json
 import os
 import logging
 from datetime import datetime, timedelta
-from app.utils.config import USER_TIMES_FILE, USER_LOG_FILE, PRAYER_NAMES
 
-# -------------------------
-# Logging Configuration
-# -------------------------
+# Use the refactored config module for all constants
+from app.utils import config
 
+# --- Logging Configuration ---
+# Set up a basic logger for the application.
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(module)s - %(levelname)s - %(message)s'
 )
 
 
-# -------------------------
-# Prayer Time Functions
-# -------------------------
+# --- Prayer Time File Operations ---
 
 def load_prayer_times():
     """
-    Load user-defined prayer times from file.
-    Returns default empty times if file missing or unreadable.
+    Loads prayer times from the user_times.json file.
+
+    Returns:
+        dict: A dictionary of prayer names to times (HH:MM).
+              Returns a default dict with "00:00" if the file is not found or corrupt.
     """
-    if os.path.exists(USER_TIMES_FILE):
+    if os.path.exists(config.USER_TIMES_FILE):
         try:
-            with open(USER_TIMES_FILE, 'r') as f:
+            with open(config.USER_TIMES_FILE, 'r') as f:
                 return json.load(f)
         except (IOError, json.JSONDecodeError) as e:
-            logging.error(f"Failed to read {USER_TIMES_FILE}: {e}")
-    return {name: "00:00" for name in PRAYER_NAMES}
+            logging.error(f"Failed to read or parse {config.USER_TIMES_FILE}: {e}")
+    # Return default values if file doesn't exist or is invalid
+    return {name: "00:00" for name in config.PRAYER_NAMES}
 
 
 def save_prayer_times(times):
     """
-    Save prayer times to user file.
-    
+    Saves the provided prayer times dictionary to the user_times.json file.
+
     Args:
-        times (dict): Prayer name → HH:MM time
+        times (dict): A dictionary of prayer names to times (HH:MM).
 
     Returns:
-        bool: True if saved successfully, False otherwise
+        bool: True if the file was saved successfully, False otherwise.
     """
     try:
-        os.makedirs(os.path.dirname(USER_TIMES_FILE), exist_ok=True)
-        with open(USER_TIMES_FILE, 'w') as f:
+        # os.makedirs works with pathlib objects and handles directory creation
+        os.makedirs(os.path.dirname(config.USER_TIMES_FILE), exist_ok=True)
+        with open(config.USER_TIMES_FILE, 'w') as f:
             json.dump(times, f, indent=4)
         logging.info("Prayer times saved successfully.")
         return True
     except IOError as e:
-        logging.error(f"Error writing to {USER_TIMES_FILE}: {e}")
+        logging.error(f"Error writing to {config.USER_TIMES_FILE}: {e}")
         return False
 
 
-# -------------------------
-# User Log Functions
-# -------------------------
+# --- User Action Logging ---
 
 def log_user_action(action_type, prayer_name=None, extra_info=None):
     """
-    Append a new user action (like prayer offered/snoozed) to the logs.
+    Appends a log entry to the user_logs.json file.
 
     Args:
-        action_type (str): e.g., 'Offered', 'Snoozed'
-        prayer_name (str): Name of the prayer (optional)
-        extra_info (str): Optional additional context
+        action_type (str): The type of action being logged (e.g., 'notified', 'offered').
+        prayer_name (str, optional): The name of the prayer associated with the action. Defaults to None.
+        extra_info (dict, optional): Any extra key-value pairs for more details. Defaults to None.
     """
     log_entry = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "action": action_type,
         "prayer": prayer_name,
-        "details": extra_info
+        "details": extra_info or {}
     }
 
     logs = []
-    if os.path.exists(USER_LOG_FILE):
+    if os.path.exists(config.USER_LOG_FILE):
         try:
-            with open(USER_LOG_FILE, 'r') as f:
+            with open(config.USER_LOG_FILE, 'r') as f:
                 existing_data = json.load(f)
-                logs = existing_data if isinstance(existing_data, list) else []
+                # Ensure we are appending to a list, even if the file is malformed
+                if isinstance(existing_data, list):
+                    logs = existing_data
         except (IOError, json.JSONDecodeError) as e:
-            logging.error(f"Could not read logs: {e}. Starting fresh.")
+            logging.error(f"Could not read logs from {config.USER_LOG_FILE}: {e}. Starting a new log.")
 
     logs.append(log_entry)
 
     try:
-        os.makedirs(os.path.dirname(USER_LOG_FILE), exist_ok=True)
-        with open(USER_LOG_FILE, 'w') as f:
+        os.makedirs(os.path.dirname(config.USER_LOG_FILE), exist_ok=True)
+        with open(config.USER_LOG_FILE, 'w') as f:
             json.dump(logs, f, indent=4)
     except IOError as e:
-        logging.error(f"Could not write logs: {e}")
+        logging.error(f"Could not write logs to {config.USER_LOG_FILE}: {e}")
 
 
-# -------------------------
-# Prayer Calculation Utility
-# -------------------------
+# --- Time Calculation Logic ---
 
 def get_next_prayer_info(current_times):
     """
-    Determine the next upcoming prayer from current time.
+    Calculates the next upcoming prayer and the time remaining until it.
 
     Args:
-        current_times (dict): Prayer name → HH:MM time
+        current_times (dict): A dictionary of prayer names to times (HH:MM).
 
     Returns:
-        tuple: (prayer_name, time_until as HH:MM:SS string)
+        tuple: A tuple containing (next_prayer_name, countdown_string).
+               Returns ("N/A", "N/A") if no times are set.
     """
     now = datetime.now()
     prayer_times_today = []
@@ -115,16 +124,18 @@ def get_next_prayer_info(current_times):
                 year=now.year, month=now.month, day=now.day
             )
             prayer_times_today.append((name, prayer_dt))
-        except ValueError:
-            continue
+        except (ValueError, TypeError):
+            continue  # Skip invalid time formats or None values
 
     prayer_times_today.sort(key=lambda x: x[1])
 
+    # Find the next prayer that is later today
     for name, prayer_dt in prayer_times_today:
         if prayer_dt > now:
             time_diff = prayer_dt - now
             return name, str(timedelta(seconds=int(time_diff.total_seconds())))
 
+    # If all of today's prayers have passed, the next is the first one tomorrow
     if prayer_times_today:
         first_prayer_name, first_prayer_dt = prayer_times_today[0]
         next_prayer_dt = first_prayer_dt + timedelta(days=1)
@@ -132,24 +143,3 @@ def get_next_prayer_info(current_times):
         return first_prayer_name, str(timedelta(seconds=int(time_diff.total_seconds())))
 
     return "N/A", "N/A"
-
-
-# -------------------------
-# Misc Utility
-# -------------------------
-
-def get_day_name(date_str):
-    """
-    Given a date string in format YYYY-MM-DD, return the weekday name.
-
-    Args:
-        date_str (str): e.g., "2025-06-20"
-
-    Returns:
-        str: Day of the week or "Invalid date"
-    """
-    try:
-        dt = datetime.strptime(date_str, "%Y-%m-%d")
-        return dt.strftime("%A")
-    except ValueError:
-        return "Invalid date"

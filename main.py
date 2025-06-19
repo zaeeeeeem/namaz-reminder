@@ -4,10 +4,10 @@ from PIL import Image
 import pystray
 import sys
 
-from gui import NamazReminderApp
-from scheduler import ReminderScheduler
-from utils import logging
-from config import ASSETS_DIR
+from app.views.main_view import NamazReminderApp
+from app.services.scheduler import ReminderScheduler
+from app.utils.utils import logging
+from app.utils.config import ASSETS_DIR
 
 # --- Global instances updated by main() ---
 app_instance = None
