@@ -1,6 +1,7 @@
 # gui.py
 
 import customtkinter as ctk
+from PIL import Image
 import queue
 import threading
 from datetime import datetime
@@ -9,6 +10,7 @@ from config import PRAYER_NAMES
 from notifier import show_notification_popup
 from prayer_calendar import open_calendar_view  # <-- Updated
 import gemini_client # <-- Add this
+from config import PRAYER_NAMES, START_MINIMIZED # <-- MODIFIED
 
 class NamazReminderApp:
     def __init__(self, scheduler):
@@ -32,6 +34,12 @@ class NamazReminderApp:
 
         self.update_dashboard_display()
         self.process_scheduler_queue()
+
+        self.app.protocol("WM_DELETE_WINDOW", self.hide_window)
+
+        if START_MINIMIZED:
+            self.app.withdraw() # Hide the window on start
+
         self.app.mainloop()
 
     def create_dashboard_frame(self):
@@ -77,8 +85,26 @@ class NamazReminderApp:
 
     def create_settings_frame(self):
         frame = ctk.CTkFrame(self.app, fg_color="transparent")
+
+        try:
+            pil_image = Image.open("assets/icon.png")
+
+            ctk_image = ctk.CTkImage(light_image=pil_image,
+                                     dark_image=pil_image,
+                                     size=(150, 150))
+
+            image_label = ctk.CTkLabel(frame, image=ctk_image, text="")
+
+            image_label.pack(pady=(10, 0))  # Add some padding
+
+        except FileNotFoundError:
+            logging.warning("icon.png not found in assets. Skipping image on settings page.")
+        except Exception as e:
+            logging.error(f"Error loading image on settings page: {e}")
+
+
         title = ctk.CTkLabel(frame, text="Set Times", font=ctk.CTkFont(size=24, weight="bold"))
-        title.pack(pady=20)
+        title.pack(pady=10)  # Adjusted padding
 
         self.prayer_entries = {}
         for name in PRAYER_NAMES:
@@ -243,3 +269,25 @@ class NamazReminderApp:
 
         self.send_button.configure(state="normal", text="Send")
         self.chat_entry.configure(state="normal")
+
+    def hide_window(self):
+        self.app.withdraw()
+        logging.info("Window hidden to system tray.")
+
+    # NEW: This is the thread-safe method the tray icon will call
+    def schedule_show_window(self):
+        """
+        Thread-safe method to request the main thread to show the window.
+        """
+        # .after() schedules a function to be called by the main GUI thread
+
+        logging.info("Show Window")
+        self.app.after(0, self._show_window_on_main_thread)
+
+    # RENAMED from show_window. This now runs safely on the main thread.
+    def _show_window_on_main_thread(self):
+        """Shows the main window. This method should only be called by the main thread."""
+        self.app.deiconify()
+        self.app.lift()
+        self.app.focus_force()
+        logging.info("Window shown from system tray.")

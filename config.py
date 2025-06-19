@@ -9,3 +9,4 @@ AZAN_SOUND_FILE = f"{ASSETS_DIR}/azan.mp3"
 
 DEFAULT_SNOOZE_MINUTES = 1
 SCHEDULER_CHECK_INTERVAL_SECONDS = 30
+START_MINIMIZED = False # Set to True to start directly in the system tray
