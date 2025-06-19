@@ -5,12 +5,11 @@ from PIL import Image
 import queue
 import threading
 from datetime import datetime
-from utils import load_prayer_times, save_prayer_times, get_next_prayer_info, logging
-from config import PRAYER_NAMES
-from notifier import show_notification_popup
-from prayer_calendar import open_calendar_view  # <-- Updated
-import gemini_client # <-- Add this
-from config import PRAYER_NAMES, START_MINIMIZED # <-- MODIFIED
+from app.utils.utils import load_prayer_times, save_prayer_times, get_next_prayer_info, logging
+from app.services.notifier import show_notification_popup
+from app.services.prayer_calendar import open_calendar_view  # <-- Updated
+from app.services import gemini_client
+from app.utils.config import PRAYER_NAMES, START_MINIMIZED # <-- MODIFIED
 
 class NamazReminderApp:
     def __init__(self, scheduler):
@@ -87,7 +86,7 @@ class NamazReminderApp:
         frame = ctk.CTkFrame(self.app, fg_color="transparent")
 
         try:
-            pil_image = Image.open("assets/icon.png")
+            pil_image = Image.open("../assets/icon.png")
 
             ctk_image = ctk.CTkImage(light_image=pil_image,
                                      dark_image=pil_image,

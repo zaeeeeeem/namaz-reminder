@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from datetime import datetime
-from config import PRAYER_NAMES
+from app.utils.config import PRAYER_NAMES
 
 
 class DashboardView(ctk.CTkFrame):

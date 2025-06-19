@@ -2,7 +2,7 @@ import customtkinter as ctk
 import os
 import json
 from datetime import datetime, timedelta
-from config import PRAYER_NAMES
+from app.utils.config import PRAYER_NAMES
 
 STATUS_OPTIONS = ["Completed", "Late", "Not Completed"]
 STATUS_COLORS = {
