@@ -10,7 +10,7 @@ STATUS_COLORS = {
     "Late": "orange",
     "Not Completed": "gray"
 }
-STATUS_FILE = "prayer_status.json"
+STATUS_FILE = "../models/prayer_status.json"
 
 def load_status_data():
     if os.path.exists(STATUS_FILE):
